@@ -249,6 +249,21 @@ function App() {
                   <h2>{recipesData.recipes[currentRecipeIndex].title}</h2>
                   <p>{recipesData.recipes[currentRecipeIndex].description}</p>
 
+                  <div className="recipe-section">
+                        <p>
+                          <strong>Prep Time:</strong>{" "}
+                          {recipesData.recipes[currentRecipeIndex].prepTime}
+                        </p>
+                        <p>
+                          <strong>Cook Time:</strong>{" "}
+                          {recipesData.recipes[currentRecipeIndex].cookTime}
+                        </p>
+                        <p>
+                          <strong>Servings:</strong>{" "}
+                          {recipesData.recipes[currentRecipeIndex].servings}
+                        </p>
+                   </div>
+
                   <button
                     className="show-more-btn"
                     onClick={() => setShowDetails((prev) => !prev)}
@@ -278,21 +293,6 @@ function App() {
                             )
                           )}
                         </ol>
-                      </div>
-
-                      <div className="recipe-section">
-                        <p>
-                          <strong>Prep Time:</strong>{" "}
-                          {recipesData.recipes[currentRecipeIndex].prepTime}
-                        </p>
-                        <p>
-                          <strong>Cook Time:</strong>{" "}
-                          {recipesData.recipes[currentRecipeIndex].cookTime}
-                        </p>
-                        <p>
-                          <strong>Servings:</strong>{" "}
-                          {recipesData.recipes[currentRecipeIndex].servings}
-                        </p>
                       </div>
                     </>
                   )}
