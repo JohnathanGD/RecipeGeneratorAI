@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
-import ai from "../config/ai.js";   // ✅ ONLY this
-import { Type } from "@google/genai"; // keep Type only
+import ai from "../config/ai.js";
+import { Type } from "@google/genai";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });

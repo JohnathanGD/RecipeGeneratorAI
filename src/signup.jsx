@@ -70,9 +70,6 @@ export default function Signup() {
         confirmPassword: "",
       });
 
-      // Optional: redirect after signup
-      // window.location.href = "/login";
-      // or window.location.href = "/dashboard";
     } catch (err) {
       setError(err.message || "Something went wrong");
     } finally {
