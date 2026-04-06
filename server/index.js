@@ -10,7 +10,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+// testing
 const upload = multer({ storage: multer.memoryStorage() });
 
 const ai = new GoogleGenAI({
