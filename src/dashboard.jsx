@@ -13,6 +13,12 @@ export default function Dashboard() {
     const [recipeCount, setRecipeCount] = useState(10);
     const [areas, setAreas] = useState([]);
     const fileInputRef = useRef(null);
+    const [groceryLists, setGroceryLists] = useState([]);
+    const [newListName, setNewListName] = useState("");
+    const token = localStorage.getItem("token");
+    const [savedRecipes, setSavedRecipes] = useState([]);
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const username = user?.firstName;
   
     const handleClick = () => {
       fileInputRef.current.click();
@@ -46,6 +52,100 @@ export default function Dashboard() {
         console.error(error);
         alert("Failed to process file");
       }
+    };
+
+    const handleAddList = async () => {
+        if (!newListName.trim()) return;
+      
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Please log in to save grocery lists.");
+          return;
+        }
+      
+        try {
+          const res = await fetch("http://localhost:5050/grocery-lists", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              name: newListName,
+              items: ingredients
+                .split(",")
+                .map((item) => item.trim())
+                .filter(Boolean),
+            }),
+          });
+      
+          const data = await res.json();
+      
+          if (!res.ok) {
+            throw new Error(data.error || "Failed to save grocery list.");
+          }
+      
+          const refreshRes = await fetch("http://localhost:5050/grocery-lists", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          const refreshedLists = await refreshRes.json();
+          if (refreshRes.ok) {
+            setGroceryLists(refreshedLists);
+          }
+      
+          setNewListName("");
+        } catch (error) {
+          console.error(error);
+          alert(error.message);
+        }
+      };
+
+    const handleSaveRecipe = async () => {
+        
+        const token = localStorage.getItem("token");
+        if (!token) {
+          alert("Please log in to save recipes.");
+          return;
+        }
+      
+        const recipe = recipesData?.recipes?.[currentRecipeIndex];
+        if (!recipe) return;
+      
+        try {
+          const res = await fetch("http://localhost:5050/saved-recipes", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(recipe),
+          });
+      
+          const data = await res.json();
+      
+          if (!res.ok) {
+            throw new Error(data.error || "Failed to save recipe.");
+          }
+      
+          const refreshRes = await fetch("http://localhost:5050/saved-recipes", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          const refreshedRecipes = await refreshRes.json();
+          if (refreshRes.ok) {
+            setSavedRecipes(refreshedRecipes);
+          }
+      
+          alert("Recipe saved successfully!");
+        } catch (error) {
+          console.error(error);
+          alert(error.message);
+        }
     };
   
     async function handleGenerate(e) {
@@ -119,6 +219,38 @@ export default function Dashboard() {
     
       fetchAreas();
     }, []);
+
+    useEffect(() => {
+        async function fetchUserData() {
+          const token = localStorage.getItem("token");
+          if (!token) return;
+      
+          try {
+            const [groceryRes, recipeRes] = await Promise.all([
+              fetch("http://localhost:5050/grocery-lists", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }),
+              fetch("http://localhost:5050/saved-recipes", {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }),
+            ]);
+      
+            const groceryData = await groceryRes.json();
+            const recipeData = await recipeRes.json();
+      
+            if (groceryRes.ok) setGroceryLists(groceryData);
+            if (recipeRes.ok) setSavedRecipes(recipeData);
+          } catch (error) {
+            console.error("Failed to load user data:", error);
+          }
+        }
+      
+        fetchUserData();
+      }, []);
   
     return (
       <>
@@ -129,22 +261,64 @@ export default function Dashboard() {
             <div className="hero-text">
               <span className="badge">AI-Powered Meal Creation</span>
             </div>
+            <h1>Welcome {user?.firstName}!</h1>
           </section>
 
           <section className="app-grid">
                 <div className="card">
                     <h2>Grocery lists</h2>
+                    <button className="add-btn" onClick={handleAddList}>+</button>
                     <p className="section-text">
                         Here are the grocery lists you have saved so far. To add another one, either upload a file in the recipe input section
                         or click the '+' icon above.
                     </p>
+
+                    <div className="add-list">
+                        <input
+                        type="text"
+                        placeholder="New List name..."
+                        value={newListName}
+                        onChange={(e) => setNewListName(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="list-container">
+                        {groceryLists.length === 0 ? (
+                            <p className="empty-text">No grocery lists yet.</p>
+                        ) : (
+                            groceryLists.map((list) => (
+                            <div
+                                key={list.id}
+                                className="list-item"
+                                onClick={() => console.log(list)}
+                            >
+                                {list.name}
+                            </div>
+                            ))
+                        )}
+                    </div>
                 </div>
+    
                 <div className="card">
-                    <h2>Saved Recipies</h2>
+                    <h2>Saved Recipes</h2>
                     <p className="section-text">
-                        Tell the model what ingredients you have and how you want the meal
-                        to turn out.
+                        Here are your saved recipes. You can also choose to rate each recipe.
                     </p>
+
+                    <div className="list-container">
+                        {savedRecipes.length === 0 ? (
+                        <p className="empty-text">No saved recipes yet.</p>
+                        ) : (
+                        savedRecipes.map((recipe) => (
+                            <div key={recipe.id} className="list-item">
+                            <strong>{recipe.title}</strong>
+                            <p className="badge">{recipe.culture}</p>
+                            <p>Cook time: {recipe.cook_time}</p>
+                            <p className="section-text">{recipe.description}</p>
+                            </div>
+                        ))
+                        )}
+                    </div>
                 </div>
             </section>
   
@@ -301,6 +475,10 @@ export default function Dashboard() {
                             )}
                           </ol>
                         </div>
+
+                        <button className="generate-btn" onClick={handleSaveRecipe}>
+                        Save Recipe
+                        </button>
                       </>
                     )}
                   </div>
