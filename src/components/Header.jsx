@@ -2,8 +2,8 @@ import React from 'react';
 import { VscAccount } from "react-icons/vsc";
 
 
-
 const Header = () => {
+
     return (
       <header className="header">
         <div className="logo-wrap">

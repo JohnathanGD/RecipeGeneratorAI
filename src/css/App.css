@@ -374,3 +374,38 @@ select:focus {
 .show-more-btn:hover {
   opacity: 0.92;
 }
+
+.add-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.add-list input {
+  width: 100%;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-item {
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.empty-text {
+  color: #888;
+}
