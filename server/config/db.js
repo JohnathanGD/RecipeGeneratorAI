@@ -28,21 +28,30 @@ db.serialize(() => {
   );
   `);
 
-  db.run(`
-    CREATE TABLE IF NOT EXISTS saved_recipes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      title TEXT NOT NULL,
-      culture TEXT,
-      description TEXT,
-      ingredients TEXT,
-      instructions TEXT,
-      prep_time TEXT,
-      cook_time TEXT,
-      servings INTEGER,
-      FOREIGN KEY(user_id) REFERENCES users(id)
-    )
-  `);
+db.run(`
+  CREATE TABLE IF NOT EXISTS saved_recipes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    culture TEXT,
+    description TEXT,
+    ingredients TEXT,
+    instructions TEXT,
+    prep_time TEXT,
+    cook_time TEXT,
+    servings INTEGER,
+
+    overall_score REAL,
+    dietary_fit TEXT,
+    allergy_safety TEXT,
+    ingredient_fit TEXT,
+    preference_fit TEXT,
+    practicality TEXT,
+    revision_notes TEXT,
+
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )
+`);
 
   db.run(`
     CREATE TABLE IF NOT EXISTS grocery_lists (
