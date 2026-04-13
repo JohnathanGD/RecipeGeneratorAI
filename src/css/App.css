@@ -406,6 +406,49 @@ select:focus {
   border-radius: 8px;
 }
 
+.list-item--clickable {
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.list-item--clickable:hover {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+  border-color: #e5e7eb;
+}
+
+.list-item__hint {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #166534;
+  font-weight: 600;
+}
+
+.saved-recipe-detail .back-link {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  padding: 0.5rem 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: #166534;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.saved-recipe-detail .back-link:hover {
+  color: #14532d;
+}
+
+.saved-recipe-detail__card h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
 .empty-text {
   color: #888;
 }

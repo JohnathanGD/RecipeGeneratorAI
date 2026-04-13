@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./css/App.css";
 import Hero from "./assets/testphoto.jpg";
 
@@ -332,7 +333,11 @@ export default function Dashboard() {
                     <p className="empty-text">No saved recipes yet.</p>
                 ) : (
                     savedRecipes.map((recipe) => (
-                    <div key={recipe.id} className="list-item">
+                    <Link
+                        key={recipe.id}
+                        to={`/dashboard/saved-recipe/${recipe.id}`}
+                        className="list-item list-item--clickable"
+                    >
                         <strong>{recipe.title}</strong>
                         <p className="badge">{recipe.culture}</p>
                         <p>Cook time: {recipe.cook_time}</p>
@@ -353,7 +358,8 @@ export default function Dashboard() {
                             <strong>Feedback:</strong> {recipe.evaluation.revisionNotes}
                         </p>
                         )}
-                    </div>
+                        <p className="list-item__hint">View full recipe →</p>
+                    </Link>
                     ))
                 )}
                 </div>

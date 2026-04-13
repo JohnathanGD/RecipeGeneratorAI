@@ -107,4 +107,43 @@ router.get("/saved-recipes", authenticateToken, (req, res) => {
   );
 });
 
+router.get("/saved-recipes/:id", authenticateToken, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id < 1) {
+    return res.status(400).json({ error: "Invalid recipe id." });
+  }
+
+  db.get(
+    `SELECT * FROM saved_recipes WHERE id = ? AND user_id = ?`,
+    [id, req.user.id],
+    (err, recipe) => {
+      if (err) {
+        console.error("Error fetching saved recipe:", err.message);
+        return res.status(500).json({ error: "Failed to fetch recipe." });
+      }
+
+      if (!recipe) {
+        return res.status(404).json({ error: "Recipe not found." });
+      }
+
+      const mapped = {
+        ...recipe,
+        ingredients: JSON.parse(recipe.ingredients || "[]"),
+        instructions: JSON.parse(recipe.instructions || "[]"),
+        evaluation: {
+          overallScore: recipe.overall_score,
+          dietaryFit: recipe.dietary_fit,
+          allergySafety: recipe.allergy_safety,
+          ingredientFit: recipe.ingredient_fit,
+          preferenceFit: recipe.preference_fit,
+          practicality: recipe.practicality,
+          revisionNotes: recipe.revision_notes,
+        },
+      };
+
+      res.json(mapped);
+    }
+  );
+});
+
 export default router;
