@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [showAgentTrace, setShowAgentTrace] = useState(false);
   const [pendingRevision, setPendingRevision] = useState(null);
   const [revisionTrace, setRevisionTrace] = useState(null);
+  const [activeTab, setActiveTab] = useState("home");
   const [culture, setCulture] = useState("");
   const [recipeCount, setRecipeCount] = useState(10);
   const [areas, setAreas] = useState([]);
@@ -443,17 +444,55 @@ export default function Dashboard() {
   return (
     <>
       <main className="page">
-        <h1>Dashboard</h1>
-        <section className="hero">
+        <section className="hero dashboard-hero">
           <div className="hero-text">
             <span className="badge">AI-Powered Meal Creation</span>
+            <h1>Dashboard</h1>
+            <p className="section-text">
+              Manage your lists, generate recipes, and iterate with the agent in
+              one workspace.
+            </p>
           </div>
-          <h1>Welcome {user?.firstName}!</h1>
+          <p className="dashboard-welcome">Welcome {user?.firstName}!</p>
+        </section>
+        <section className="dashboard-stats">
+          <article className="stat-card">
+            <p className="stat-card__label">Saved recipes</p>
+            <p className="stat-card__value">{savedRecipes.length}</p>
+          </article>
+          <article className="stat-card">
+            <p className="stat-card__label">Grocery lists</p>
+            <p className="stat-card__value">{groceryLists.length}</p>
+          </article>
+          <article className="stat-card">
+            <p className="stat-card__label">Agent mode</p>
+            <p className="stat-card__value">{autoReviseLowScore ? "Auto revise ON" : "Manual revise"}</p>
+          </article>
+        </section>
+        <section className="dashboard-tabs" aria-label="Dashboard sections">
+          <button
+            type="button"
+            className={`dashboard-tab ${activeTab === "home" ? "dashboard-tab--active" : ""}`}
+            onClick={() => setActiveTab("home")}
+          >
+            Home
+          </button>
+          <button
+            type="button"
+            className={`dashboard-tab ${activeTab === "generate" ? "dashboard-tab--active" : ""}`}
+            onClick={() => setActiveTab("generate")}
+          >
+            Generate Recipes
+          </button>
         </section>
         <section className="dashboard">
-            <section className="app-grid">
-            <div className="card">
-                <h2>Grocery lists</h2>
+            {activeTab === "home" && (
+            <section className="app-grid dashboard-grid-top">
+            <div className="card dashboard-panel dashboard-panel--data">
+                <div className="panel-head">
+                  <h2>Grocery lists</h2>
+                  <span className="panel-role panel-role--data">Data/Admin</span>
+                </div>
                 <p className="section-text">
                 Create a list by typing items below or uploading a PDF or .txt file to
                 have it analyzed and turned into items. Then name the list and click + to save.
@@ -522,13 +561,16 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            <div className="card">
-                <h2>Saved Recipes</h2>
+            <div className="card dashboard-panel dashboard-panel--data">
+                <div className="panel-head">
+                  <h2>Saved Recipes</h2>
+                  <span className="panel-role panel-role--data">Data/Admin</span>
+                </div>
                 <p className="section-text">
                 Here are your saved recipes. You can also choose to rate each recipe.
                 </p>
 
-                <div className="list-container">
+                <div className="list-container saved-recipes-list">
                 {savedRecipes.length === 0 ? (
                     <p className="empty-text">No saved recipes yet.</p>
                 ) : (
@@ -536,16 +578,17 @@ export default function Dashboard() {
                     <Link
                         key={recipe.id}
                         to={`/dashboard/saved-recipe/${recipe.id}`}
-                        className="list-item list-item--clickable"
+                        className="list-item list-item--clickable saved-recipe-item"
                     >
-                        <strong>{recipe.title}</strong>
-                        <p className="badge">{recipe.culture}</p>
-                        <p>Cook time: {recipe.cook_time}</p>
-                        <p className="section-text">{recipe.description}</p>
+                        <strong className="saved-recipe-item__title">{recipe.title}</strong>
+                        <p className="saved-recipe-item__meta">
+                          {recipe.culture || "Any cuisine"} • {recipe.cook_time || "Cook time n/a"}
+                        </p>
+                        <p className="saved-recipe-item__desc">{recipe.description}</p>
 
                         {recipe.evaluation?.overallScore != null && (
                         <p
-                          className={`score-badge ${getScoreClass(
+                          className={`score-badge saved-recipe-item__score ${getScoreClass(
                             recipe.evaluation.overallScore
                           )}`}
                         >
@@ -554,21 +597,26 @@ export default function Dashboard() {
                         )}
 
                         {recipe.evaluation?.revisionNotes && (
-                        <p className="section-text">
+                        <p className="section-text saved-recipe-item__feedback">
                             <strong>Feedback:</strong> {recipe.evaluation.revisionNotes}
                         </p>
                         )}
-                        <p className="list-item__hint">View full recipe →</p>
+                        <p className="list-item__hint saved-recipe-item__hint">View full recipe →</p>
                     </Link>
                     ))
                 )}
                 </div>
             </div>
             </section>
+            )}
 
-            <section className="app-grid">
-            <div className="card">
-                <h2>Recipe Inputs</h2>
+            {activeTab === "generate" && (
+            <section className="app-grid dashboard-grid-main">
+            <div className="card dashboard-panel dashboard-panel--data">
+                <div className="panel-head">
+                  <h2>Recipe Inputs</h2>
+                  <span className="panel-role panel-role--data">Data/Admin</span>
+                </div>
                 <p className="section-text">
                 Tell the model what ingredients you have and how you want the meal
                 to turn out.
@@ -689,7 +737,11 @@ export default function Dashboard() {
                 </form>
             </div>
 
-            <div className="card recipe-card">
+            <div className="card recipe-card dashboard-panel dashboard-panel--agent dashboard-panel--sticky">
+                <div className="panel-head panel-head--agent">
+                  <h2>Agent Workspace</h2>
+                  <span className="panel-role panel-role--agent">Agent</span>
+                </div>
                 {!recipesData?.recipes ? (
                 <div className="empty-state">
                     <h2>Your recipes will appear here</h2>
@@ -697,6 +749,12 @@ export default function Dashboard() {
                     Once you generate recipes, they will show up here in a cleaner
                     format.
                     </p>
+                    {loading && (
+                      <div className="empty-state-loading" role="status" aria-live="polite">
+                        <span className="spinner" aria-hidden="true" />
+                        <p>Generating recipes with the agent...</p>
+                      </div>
+                    )}
                 </div>
                 ) : (
                 <div className="recipe-carousel">
@@ -967,6 +1025,7 @@ export default function Dashboard() {
                 )}
             </div>
             </section>
+            )}
         </section>
       </main>
     </>
