@@ -73,7 +73,7 @@ npm -v
 
 ### 1) Clone repository
 ```bash
-git clone <your-github-repo-url>
+git clone https://github.com/JohnathanGD/RecipeGenix.git
 cd ai-recipe-maker
 ```
 
